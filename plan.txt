@@ -1,0 +1,54 @@
+18/12-2023 -- 5/1-2023
+
+https://developer.themoviedb.org/docs
+
+Website using The Movie DataBase.
+See current top rated and top movies
+Search movie or person for more information.
+-- A simplified IMdB
+
+SCREEN TIME
+- film strip, sleep, blue, mint green, coral
+
+Site elements:
+- List with current top 10 ranked movies
+- List with current most popular movies
+- Search for movie or person
+
+Lists should include:
+- img
+- title
+- release date
+
+Search results for movie:
+- img
+- title
+- release date
+- description
+
+Search results for person:
+- img
+- name
+- role (acting, directing, editing, etc)
+- list of TV and Movies they're famouse for
+    - ex:
+        - Movie: Aquaman
+        - TV: Game of Thrones
+        - Movie: The Bad Batch
+
+Errors:
+- Instruct how user can solve issue, if possible
+- otherwise display "something went wrong"
+
+Additional basic requirements:
+- Use at least one library
+    - cookie.js, anime.js
+
+Pass with distinction, requirements:
+- Add additional functionality with TMDB API
+    - user score
+    - budget vs earnings
+    - where to stream
+    - similar titles: keywords
+    - backgrounds
+    - display genre
