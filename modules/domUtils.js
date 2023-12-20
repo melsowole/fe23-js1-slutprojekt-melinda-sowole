@@ -1,5 +1,9 @@
-// function createAndAppendEl()
-export function create(tagName, classNames, textContent) {
+export const DOM = {
+	create,
+	createAndAppend,
+};
+
+function create(tagName, classNames, textContent) {
 	const element = document.createElement(tagName);
 
 	if (classNames) {
@@ -20,19 +24,10 @@ export function create(tagName, classNames, textContent) {
 	return element;
 }
 
-export function createAndAppend(
-	parentContainer,
-	tagName,
-	classNames,
-	textContent
-) {
+function createAndAppend(parentContainer, tagName, classNames, textContent) {
 	const element = create(tagName, classNames, textContent);
 
 	parentContainer.append(element);
 
 	return element;
-}
-
-export function getFirstTenItems(array) {
-	return array.slice(0, 10);
 }

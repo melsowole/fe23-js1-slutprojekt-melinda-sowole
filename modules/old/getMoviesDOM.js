@@ -1,29 +1,18 @@
 import { createAndAppend, create } from "./helperFunctions.js";
 
-export function createMovieListSection(listHeading, moviesArray) {
-	const movieListSection = create("section");
+function createListSection(heading, array, type) {
+	const listSection = create("section");
 
-	createAndAppend(movieListSection, "h2", "list-heading", listHeading);
+	createAndAppend(movieCardSection, "h2", "list-heading", heading);
 
-	const list = createAndAppend(movieListSection, "ol", ["movie-list", "row"]);
+	const list = createAndAppend(listSection, type, ["list", "row"]);
 
-	for (const movie of moviesArray) {
-		list.append(createMovieListItem(movie));
+	for (const item of array) {
+		if (type == "top") list.append(createMovieCardItem(movie));
 	}
-
-	return movieListSection;
 }
 
-function createMovieListItem(movieInfo) {
-	const listItem = create("li", ["list-item", "col"]);
-	console.log(movieInfo);
-
-	listItem.append(movieCard(movieInfo));
-
-	return listItem;
-}
-
-function movieCard(movie) {
+function createMovieCard(movie) {
 	const card = create("article", ["movie-card", "card"]);
 
 	//img, title (year), genre
@@ -48,3 +37,7 @@ function movieCard(movie) {
 		return movie.release_date.split("-")[0];
 	}
 }
+
+function createMovieResultCard(movie) {}
+
+function createPersonResultCard(person) {}

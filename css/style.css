@@ -48,10 +48,6 @@ h1 {
 	font-weight: 900;
 }
 
-h2 {
-	text-transform: uppercase;
-}
-
 h2,
 h3 {
 	font-weight: 600;
@@ -65,9 +61,10 @@ h3 {
 .list-item {
 	counter-increment: step-counter;
 	position: relative;
+	max-width: 540px;
 }
 
-.list-item::before {
+ol .list-item::before {
 	content: counter(step-counter);
 	position: absolute;
 	z-index: 10;
@@ -75,14 +72,11 @@ h3 {
 	left: 0rem;
 	background-color: var(--col);
 	color: var(--contrast-flip);
-	width: 2.5rem;
-	aspect-ratio: 1/1;
-	display: grid;
-	place-content: center;
-}
-
-.movie-card {
-	width: 300px;
+	height: 2.5rem;
+	aspect-ratio: 3/2;
+	display: flex;
+	align-items: center;
+	padding-left: 1rem;
 }
 
 .movie-card .cover {

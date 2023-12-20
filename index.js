@@ -1,23 +1,27 @@
-import { search, topMovies } from "./modules/fetchMovies.js";
-import { createMovieListSection } from "./modules/displayMovies.js";
-import { getFirstTenItems } from "./modules/helperFunctions.js";
+// import { topMovies } from "./modules/old/fetchMovies.js";
+// import { handleSubmit } from "./modules/form.js";
+import { api } from "./modules/api.js";
+import { display } from "./modules/domBuilder.js";
 
-console.log(topMovies("popular"));
-fetch(topMovies("popular"))
-	.then((response) => response.json())
-	.then((data) => {
-		const movies = getFirstTenItems(data.results);
-		document
-			.querySelector("main")
-			.append(createMovieListSection("Most Popular Movies", movies));
-	});
+// api.fetchSearch({ type: "movie", query: "batman" }).then((results) => {
+// 	console.log(results);
+// 	display.listSection("#results", "results", results, "results");
+// });
 
-fetch(topMovies("top_rated"))
-	.then((response) => response.json())
-	.then((data) => {
-		const movies = getFirstTenItems(data.results);
+api.fetchSearch({ type: "person", query: "christian bale" }).then((data) => {
+	display.listSection(
+		"#results",
+		`${data.results.length} Result${data.results.length == 1 ? "" : "s"}`,
+		data
+	);
+});
 
-		document
-			.querySelector("main")
-			.append(createMovieListSection("Top Rated Movies", movies));
-	});
+// api.fetchSearch({ type: "tv", query: "game of thrones" }).then((data) => {
+// 	display.listSection(
+// 		"#results",
+// 		`${data.results.length} Result${data.results.length == 1 ? "" : "s"}`,
+// 		data
+// 	);
+// });
+
+// document.querySelector("form").addEventListener("submit", handleSubmit);

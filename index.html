@@ -11,16 +11,133 @@
 			integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
 			crossorigin="anonymous"
 		/>
+		<script
+			defer
+			src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+			crossorigin="anonymous"
+		></script>
 		<link rel="stylesheet" href="./css/style.css" />
 		<title>Screen Time</title>
 	</head>
-	<body class="container">
-		<header><h1>SCREEN TIME</h1></header>
-		<main class="row">
-			<aside>
-				<h2>Favorites</h2>
-				<p>Accept cookies?</p>
-			</aside>
+	<body>
+		<header class="navbar">
+			<div class="container">
+				<h1 class="navbar-brand mb-0">SCREEN TIME</h1>
+				<div>- All things screen</div>
+			</div>
+		</header>
+
+		<main class="container py-3">
+			<ul class="nav nav-tabs justify-content-end" id="myTab" role="tablist">
+				<li class="nav-item" role="presentation">
+					<button
+						class="nav-link"
+						id="home-tab"
+						data-bs-toggle="tab"
+						data-bs-target="#home-tab-pane"
+						type="button"
+						role="tab"
+						aria-controls="home-tab-pane"
+						aria-selected="true"
+					>
+						Home
+					</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button
+						class="nav-link active"
+						id="search-tab"
+						data-bs-toggle="tab"
+						data-bs-target="#search-tab-pane"
+						type="button"
+						role="tab"
+						aria-controls="search-tab-pane"
+						aria-selected="false"
+					>
+						Search
+					</button>
+				</li>
+				<li class="nav-item" role="presentation">
+					<button
+						class="nav-link"
+						id="favs-tab"
+						data-bs-toggle="tab"
+						data-bs-target="#favs-tab-pane"
+						type="button"
+						role="tab"
+						aria-controls="favs-tab-pane"
+						aria-selected="false"
+					>
+						Favorites
+					</button>
+				</li>
+			</ul>
+			<div class="tab-content" id="myTabContent">
+				<div
+					class="tab-pane fade"
+					id="home-tab-pane"
+					role="tabpanel"
+					aria-labelledby="home-tab"
+					tabindex="0"
+				>
+					<!-- HOME TAB START -->
+					<div class="py-2">
+						<div id="popular"></div>
+						<div id="top-rated"></div>
+					</div>
+
+					<!-- HOME TAB END -->
+				</div>
+				<div
+					class="tab-pane fade show active container py-3"
+					id="search-tab-pane"
+					role="tabpanel"
+					aria-labelledby="search-tab"
+					tabindex="0"
+				>
+					<!-- SEARCH TAB -->
+					<form class="row g-2">
+						<label for="search-input" class="form-label"
+							>Search Screen Time</label
+						>
+						<div class="input-group mb-3 col">
+							<select class="input-group-text" aria-label="Search type">
+								<option value="movies" selected>Movies</option>
+								<option value="tv">TV</option>
+								<option value="actors">Actors</option>
+							</select>
+							<input type="text" id="search-input" class="form-control" />
+						</div>
+
+						<div class="col-12 col-md-auto h-50 d-flex justify-content-end">
+							<input
+								type="submit"
+								class="btn btn-primary col-auto"
+								value="Search"
+							/>
+						</div>
+					</form>
+
+					<hr />
+
+					<div id="results"></div>
+
+					<!-- SEARCH TAB END-->
+				</div>
+				<div
+					class="tab-pane fade show"
+					id="favs-tab-pane"
+					role="tabpanel"
+					aria-labelledby="favs-tab"
+					tabindex="0"
+				>
+					<!-- FAVORITES TAB -->
+					<h2>Favorites</h2>
+					Accept cookied?
+					<!-- FAVORITES TAB END -->
+				</div>
+			</div>
 		</main>
 	</body>
 </html>
