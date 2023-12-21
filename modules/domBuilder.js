@@ -15,7 +15,12 @@ function resultList(parentID, results) {
 	const { listSection, list } = createListSection(listName);
 	parent.append(listSection);
 
-	fillList(list, results, createFilmCardExtendedInfo);
+	let cardType = createFilmCardExtendedInfo;
+	if (resultsArePeople(results)) {
+		cardType = createPersonCard;
+	}
+
+	fillList(list, results, cardType);
 
 	const cards = listSection.querySelectorAll(".card");
 
@@ -62,7 +67,8 @@ function errorMessage(errorType, errorMessage) {
 function fillList(list, items, cardType) {
 	for (let item of items) {
 		item = unifyData(item);
-		// new keys: name, release, cover, description
+		// keys (film): name, release, cover, description
+		// keys person: name, role, img, known_for
 
 		const listItem = dom.createAndAppend(list, "li", "col");
 
@@ -92,7 +98,7 @@ function createList() {
 	return dom.create("ol", ["list", "row", "g-5", "row-cols"]);
 }
 
-function createCard(cardTitle) {
+function createCard() {
 	//h-100 makes all card equal heihght
 	const card = dom.create("article", ["row", "card", "h-100"]);
 
@@ -115,39 +121,32 @@ function createCard(cardTitle) {
 		"list-group-item",
 	]);
 
-	dom.createAndAppend(
-		cardTitleWrapper,
-		"h3",
-		["card-title", "fs-5", "d-inline"],
-		cardTitle
-	);
+	const cardTitle = dom.createAndAppend(cardTitleWrapper, "h3", [
+		"card-title",
+		"fs-5",
+		"d-inline",
+	]);
 
 	const cardSubtitle = dom.createAndAppend(cardTitleWrapper, "span", [
 		"card-subtitle",
-		"ms-3",
+		"ms-2",
 	]);
 
-	return { card, cardImg, cardBody, cardSubtitle };
+	return { card, cardImg, cardBody, cardTitle, cardSubtitle };
 }
 
 function createFilmCard(film, extend) {
-	const { card, cardImg, cardBody, cardSubtitle } = createCard(film.name);
+	const { card, cardImg, cardTitle, cardBody, cardSubtitle } = createCard();
 
-	cardImg.style.backgroundImage = `url(https://image.tmdb.org/t/p/w780${film.cover})`;
+	setCardImg(cardImg, film.cover);
 
-	// year
-	cardSubtitle.textContent = "(" + getReleaseYear() + ")";
+	setCardTitle(cardTitle, film.name);
+	setCardSubtitle(cardSubtitle, "(" + getReleaseYear() + ")");
 
 	if (extend) {
-		cardImg.classList.add("col-md-5", "col-lg-3", "rounded-start");
-		cardBody.classList.add("col-md-7");
+		flexCardOnWideScreen(cardImg, cardBody);
 
-		dom.createAndAppend(
-			cardBody,
-			"p",
-			["description", "list-group-item"],
-			film.description
-		);
+		addToCardBody(cardBody, film.description);
 	}
 
 	return !extend ? card : { card, cardImg, cardBody };
@@ -163,7 +162,25 @@ function createFilmCardExtendedInfo(film) {
 	return card;
 }
 
-function createPersonCard(person) {}
+function createPersonCard(person) {
+	const { card, cardImg, cardTitle, cardBody, cardSubtitle } = createCard();
+
+	setCardImg(cardImg, person.img, "original");
+
+	setCardTitle(cardTitle, person.name);
+	setCardSubtitle(cardSubtitle, "(" + person.role + ")");
+
+	flexCardOnWideScreen(cardImg, cardBody);
+
+	let knownFor = [];
+	for (const work of person.known_for) {
+		knownFor.push(`(${work.type}) ${work.title}`);
+	}
+
+	addToCardBody(cardBody, knownFor);
+
+	return card;
+}
 
 // HELPER FUNCTIONS
 function clearAndSetParent(parentID) {
@@ -193,10 +210,8 @@ function unifyData(resultObj) {
 		unifiedObj.release = resultObj.first_air_date;
 	}
 
-	if (unifiedObj.release == "") {
-		unifiedObj.release = unifiedObj.release == "" ? "—" : unifiedObj.release;
-		console.log(unifiedObj.release);
-	}
+	// if no release
+	unifiedObj.release = unifiedObj.release == "" ? "—" : unifiedObj.release;
 
 	//if person
 	if (resultObj.known_for) {
@@ -211,4 +226,49 @@ function unifyData(resultObj) {
 	}
 
 	return unifiedObj;
+}
+
+function resultsArePeople(results) {
+	return "gender" in results[0];
+}
+
+function setText(container, text) {
+	container.textContent = text;
+}
+
+// CUSTOMIZE CARD
+function setCardTitle(cardTitle, titleText) {
+	setText(cardTitle, titleText);
+}
+
+function setCardSubtitle(cardSubtitle, subtitleText) {
+	setText(cardSubtitle, subtitleText);
+}
+
+function setCardImg(cardImg, path, size) {
+	let baseURL = `https://image.tmdb.org/t/p`;
+	size = size == "original" ? "/original" : "/w780";
+
+	let url = baseURL + size + path;
+
+	if (!path) {
+		url =
+			"https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fwww.coalitionrc.com%2Fwp-content%2Fuploads%2F2017%2F01%2Fplaceholder.jpg&f=1&nofb=1&ipt=93da5d83fd7c91d546941082e263776f49b0549c076c30e24b8af3d0de6dc7f3&ipo=images";
+	}
+
+	cardImg.style.backgroundImage = `url(${url})`;
+}
+
+function addToCardBody(cardBody, info) {
+	const addition = dom.createAndAppend(
+		cardBody,
+		"p",
+		["description", "list-group-item"],
+		info
+	);
+}
+
+function flexCardOnWideScreen(cardImg, cardBody) {
+	cardImg.classList.add("col-md-5", "col-lg-3", "rounded-start");
+	cardBody.classList.add("col-md-7");
 }

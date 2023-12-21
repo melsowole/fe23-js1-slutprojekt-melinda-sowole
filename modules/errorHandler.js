@@ -7,8 +7,10 @@ export function handleError(errorCode) {
 
 	if (errorCode == 404) {
 		errorType = "No Results Found";
-		errorMessage =
-			"Sorry, but your search didn't yield any results. Try refining your search terms and try again.";
+		errorMessage = [
+			"Sorry, but your search didn't yield any results.",
+			"Confirm your category and check for any typos in your search term, then try again.",
+		];
 	} else if (errorCode == 400) {
 		errorType = "Bad Request";
 		errorMessage =
@@ -16,4 +18,5 @@ export function handleError(errorCode) {
 	}
 
 	display.errorMessage(errorType, errorMessage);
+	console.log(errorCode);
 }

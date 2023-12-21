@@ -8,6 +8,7 @@ export const api = {
 	fetchPopularMovies,
 };
 
+// EXPORTED FUNCTIONS
 async function fetchSearch({ type, query }) {
 	const ENDPOINT = `/search/${type}`; // movie || person || tv
 	const QUERY = `?query=${formatQueryString(query)}`;
@@ -15,57 +16,41 @@ async function fetchSearch({ type, query }) {
 
 	const url = BASE_URL + ENDPOINT + QUERY + FILTERS + API_KEY;
 
-	console.log(url);
-
-	try {
-		const data = await fetchAPI(url);
-		return data.results;
-	} catch (error) {
-		throw error;
-	}
+	return fetchData(url);
 }
 
 async function fetchTopRatedMovies() {
 	const url = getMovieListURL("top_rated");
 
-	try {
-		const data = await fetchAPI(url);
-		return data.results;
-	} catch (error) {
-		throw error;
-	}
+	return fetchData(url);
 }
 
 async function fetchPopularMovies() {
 	const url = getMovieListURL("popular");
-
-	try {
-		const data = await fetchAPI(url);
-		return data.results;
-	} catch (error) {
-		throw error;
-	}
+	return fetchData(url);
 }
 
-function getMovieListURL(type) {
-	const ENDPOINT = `/movie/${type}?language=en-US&limit=10`;
-	return BASE_URL + ENDPOINT + API_KEY;
-}
+// API
 
-async function fetchAPI(url) {
+async function fetchData(url) {
 	const response = await fetch(url);
 
 	if (response.ok) {
 		const data = await response.json();
 
 		if (data.results && data.results.length) {
-			return data;
+			return data.results;
 		} else {
 			throw 404;
 		}
 	} else {
 		throw response.status;
 	}
+}
+
+function getMovieListURL(type) {
+	const ENDPOINT = `/movie/${type}?language=en-US&limit=10`;
+	return BASE_URL + ENDPOINT + API_KEY;
 }
 
 function formatQueryString(string) {

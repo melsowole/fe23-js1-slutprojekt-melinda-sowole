@@ -51,6 +51,8 @@ h1 {
 h2,
 h3 {
 	font-weight: 600;
+	padding-top: 1rem;
+	padding-bottom: 0.5rem;
 }
 
 ol {
@@ -79,7 +81,7 @@ ol {
 }
 
 .card .cover {
-	height: 400px;
+	min-height: 400px;
 	background-color: var(--col-50);
 	background-position: center;
 	background-size: cover;

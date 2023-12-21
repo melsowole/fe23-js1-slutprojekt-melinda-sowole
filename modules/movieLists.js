@@ -3,7 +3,7 @@ import { display } from "./domBuilder.js";
 
 export function displayPopularMovies() {
 	api.fetchPopularMovies().then((shows) => {
-		display.topTenList("#popular", "Most Popular Movies", shows);
+		display.topTenList("#popular", "Current Popular Movies", shows);
 	});
 }
 

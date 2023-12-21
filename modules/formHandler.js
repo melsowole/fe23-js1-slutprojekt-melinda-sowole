@@ -15,7 +15,6 @@ export function handleSubmit(e) {
 		api
 			.fetchSearch({ type, query })
 			.then((data) => {
-				console.log(data);
 				display.resultList("#results", data);
 			})
 			.catch(handleError);
