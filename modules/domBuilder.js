@@ -1,124 +1,212 @@
 // function that display information
 // * "movie" is used for both movies and tv
-import { DOM } from "./domUtils.js";
+import { dom } from "./domUtils.js";
 import { api } from "./api.js";
 
-export const display = { listSection, errorMessage };
+export const display = { resultList, topTenList, errorMessage };
 
-export function listSection(parentID, listHeading, apiResponse) {
-	const parent = document.querySelector(parentID);
-	console.log(parent);
+// DISPLAY FUNCTIONS
+function resultList(parentID, results) {
+	const parent = clearAndSetParent(parentID);
 
-	clearResults(parent);
+	// create list
+	const listName = `${results.length} Result${results.length == 1 ? "" : "s"}`;
 
-	const results = apiResponse.results;
-	const requestType = api.getRequestType(apiResponse.url);
+	const { listSection, list } = createListSection(listName);
+	parent.append(listSection);
 
-	const listContainer = DOM.createAndAppend(parent, "section");
+	fillList(list, results, createFilmCardExtendedInfo);
 
-	DOM.createAndAppend(listContainer, "h2", "list-heading", listHeading);
+	const cards = listSection.querySelectorAll(".card");
 
-	const list = DOM.createAndAppend(listContainer, "ol", [
-		"list",
-		"row",
-		"g-4",
-		"card-deck",
-	]);
+	//sets columns
+	list.classList.add("row-cols-1");
 
-	for (let result of results) {
-		const listItem = DOM.createAndAppend(list, "li", ["col-auto"]);
-
-		result = unifyData(result, requestType);
-
-		listItem.append(filmCard(result, requestType));
-	}
+	cards.forEach((card) => {
+		card.classList.add("flex-row");
+	});
 }
 
-function filmCard({ title, release, cover, description }, requestType) {
-	const card = DOM.create("article", [
-		"movie-card",
-		"card",
-		"row",
-		"flex-md-row",
-	]);
+function topTenList(parentID, listName, results) {
+	const parent = clearAndSetParent(parentID);
 
-	//img, title (year), genre
-	const img = DOM.createAndAppend(card, "div", [
-		"cover",
-		"card-img-start",
-		`col-${requestType ? "md-4" : "auto"}`,
-	]);
+	const { listSection, list } = createListSection(listName);
+	parent.append(listSection);
 
-	img.style.backgroundImage = `url(https://image.tmdb.org/t/p/w500${cover})`;
-	// img.width = 100;
+	listSection.classList.add("top-list");
 
-	const cardBody = DOM.createAndAppend(card, "div", [
-		"card-body",
-		`col-${requestType ? "md-4" : "auto"}`,
-	]);
+	const topTen = results.slice(0, 10);
 
-	DOM.createAndAppend(cardBody, "h3", ["card-title", "fs-5"], title);
+	fillList(list, topTen, createFilmCard);
 
-	DOM.createAndAppend(
-		cardBody,
-		"span",
-		["release", "card-subtitle"],
-		getReleaseYear()
+	// sets columns
+	list.classList.add(
+		"row-cols-1",
+		"row-cols-md-2",
+		"row-cols-lg-3",
+		"row-cols-xxl-4"
 	);
-
-	if (requestType) {
-		DOM.createAndAppend(cardBody, "p", "description", description);
-	}
-
-	return card;
-
-	function getReleaseYear() {
-		return release.split("-")[0];
-	}
 }
-
-function personCard() {}
 
 function errorMessage(errorType, errorMessage) {
-	clearResults();
+	const parent = clearAndSetParent("#results");
 
-	const errorContainer = DOM.createAndAppend(
-		resultsContainer,
-		"section",
-		"error"
-	);
+	const errorContainer = dom.createAndAppend(parent, "section", "error");
 
-	DOM.createAndAppend(errorContainer, "h2", "error-type", errorType);
-	DOM.createAndAppend(errorContainer, "p", "error-heading", errorMessage);
+	dom.createAndAppend(errorContainer, "h2", "error-type", errorType);
+	dom.createAndAppend(errorContainer, "p", "error-heading", errorMessage);
 }
 
-function clearResults(container) {
+// COMPONENTS
+
+function fillList(list, items, cardType) {
+	for (let item of items) {
+		item = unifyData(item);
+		// new keys: name, release, cover, description
+
+		const listItem = dom.createAndAppend(list, "li", "col");
+
+		listItem.append(cardType(item));
+		list.append(listItem);
+	}
+}
+
+function createListSection(listName) {
+	const listSection = dom.create("section", "container");
+
+	const listHeading = createListHeading();
+	listHeading.textContent = listName;
+
+	const list = createList();
+
+	listSection.append(listHeading, list);
+
+	return { listSection, list };
+}
+
+function createListHeading() {
+	return dom.create("h2", "list-heading");
+}
+
+function createList() {
+	return dom.create("ol", ["list", "row", "g-5", "row-cols"]);
+}
+
+function createCard(cardTitle) {
+	//h-100 makes all card equal heihght
+	const card = dom.create("article", ["row", "card", "h-100"]);
+
+	//img, title (year), genre
+	const cardImg = dom.createAndAppend(card, "div", [
+		"cover",
+		"card-img-start",
+		"col-fluid",
+	]);
+
+	const cardBody = dom.createAndAppend(card, "div", [
+		"card-body",
+		"list-group",
+		"list-group-flush",
+		"col-auto",
+	]);
+
+	const cardTitleWrapper = dom.createAndAppend(cardBody, "header", [
+		"card-title-wrapper",
+		"list-group-item",
+	]);
+
+	dom.createAndAppend(
+		cardTitleWrapper,
+		"h3",
+		["card-title", "fs-5", "d-inline"],
+		cardTitle
+	);
+
+	const cardSubtitle = dom.createAndAppend(cardTitleWrapper, "span", [
+		"card-subtitle",
+		"ms-3",
+	]);
+
+	return { card, cardImg, cardBody, cardSubtitle };
+}
+
+function createFilmCard(film, extend) {
+	const { card, cardImg, cardBody, cardSubtitle } = createCard(film.name);
+
+	cardImg.style.backgroundImage = `url(https://image.tmdb.org/t/p/w780${film.cover})`;
+
+	// year
+	cardSubtitle.textContent = "(" + getReleaseYear() + ")";
+
+	if (extend) {
+		cardImg.classList.add("col-md-5", "col-lg-3", "rounded-start");
+		cardBody.classList.add("col-md-7");
+
+		dom.createAndAppend(
+			cardBody,
+			"p",
+			["description", "list-group-item"],
+			film.description
+		);
+	}
+
+	return !extend ? card : { card, cardImg, cardBody };
+
+	function getReleaseYear() {
+		return film.release.split("-")[0];
+	}
+}
+
+function createFilmCardExtendedInfo(film) {
+	const { card, cardImg, cardBody } = createFilmCard(film, "extend");
+
+	return card;
+}
+
+function createPersonCard(person) {}
+
+// HELPER FUNCTIONS
+function clearAndSetParent(parentID) {
+	const parent = document.querySelector(parentID);
+	clearContainer(parent);
+
+	return parent;
+}
+
+function clearContainer(container) {
 	container.innerHTML = "";
 }
 
 // returns object with more streamlined keys
 // across actor, movie and tv results
-function unifyData(arrayObj, apiSearchType) {
+function unifyData(resultObj) {
 	let unifiedObj = {
-		name: arrayObj.title,
-		release: arrayObj.release_date,
-		cover: arrayObj.poster_path,
-		description: arrayObj.overview,
+		name: resultObj.title,
+		release: resultObj.release_date,
+		cover: resultObj.poster_path || resultObj.backdrop_path,
+		description: resultObj.overview,
 	};
 
-	if (apiSearchType == "tv") {
-		unifiedObj.name = arrayObj.name;
-		unifiedObj.release = arrayObj.first_air_date;
+	// if show
+	if ("first_air_date" in resultObj) {
+		unifiedObj.name = resultObj.name;
+		unifiedObj.release = resultObj.first_air_date;
 	}
 
-	if (apiSearchType == "person") {
+	if (unifiedObj.release == "") {
+		unifiedObj.release = unifiedObj.release == "" ? "—" : unifiedObj.release;
+		console.log(unifiedObj.release);
+	}
+
+	//if person
+	if (resultObj.known_for) {
 		unifiedObj = {
-			name: arrayObj.name,
-			role: arrayObj.known_for_department,
-			known_for: arrayObj.known_for.map((work) => {
+			name: resultObj.name,
+			role: resultObj.known_for_department,
+			known_for: resultObj.known_for.map((work) => {
 				return { type: work.media_type, title: work.title };
 			}),
-			img: arrayObj.profile_path,
+			img: resultObj.profile_path,
 		};
 	}
 

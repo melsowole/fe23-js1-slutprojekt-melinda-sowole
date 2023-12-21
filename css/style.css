@@ -53,18 +53,17 @@ h3 {
 	font-weight: 600;
 }
 
-.movie-list {
+ol {
 	list-style-type: none;
 	padding-left: 0;
 }
 
-.list-item {
+.top-list li {
 	counter-increment: step-counter;
 	position: relative;
-	max-width: 540px;
 }
 
-ol .list-item::before {
+.top-list li::before {
 	content: counter(step-counter);
 	position: absolute;
 	z-index: 10;
@@ -79,7 +78,7 @@ ol .list-item::before {
 	padding-left: 1rem;
 }
 
-.movie-card .cover {
+.card .cover {
 	height: 400px;
 	background-color: var(--col-50);
 	background-position: center;

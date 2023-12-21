@@ -9,6 +9,10 @@ export function handleError(errorCode) {
 		errorType = "No Results Found";
 		errorMessage =
 			"Sorry, but your search didn't yield any results. Try refining your search terms and try again.";
+	} else if (errorCode == 400) {
+		errorType = "Bad Request";
+		errorMessage =
+			"Whoops! Looks like you forgot to enter a search query. Please type something and try again.";
 	}
 
 	display.errorMessage(errorType, errorMessage);

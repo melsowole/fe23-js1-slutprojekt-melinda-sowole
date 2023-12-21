@@ -2,26 +2,14 @@
 // import { handleSubmit } from "./modules/form.js";
 import { api } from "./modules/api.js";
 import { display } from "./modules/domBuilder.js";
+import { handleSubmit } from "./modules/formHandler.js";
+import {
+	displayPopularMovies,
+	displayTopRatedMovies,
+} from "./modules/movieLists.js";
 
-// api.fetchSearch({ type: "movie", query: "batman" }).then((results) => {
-// 	console.log(results);
-// 	display.listSection("#results", "results", results, "results");
-// });
+displayPopularMovies();
 
-api.fetchSearch({ type: "person", query: "christian bale" }).then((data) => {
-	display.listSection(
-		"#results",
-		`${data.results.length} Result${data.results.length == 1 ? "" : "s"}`,
-		data
-	);
-});
+displayTopRatedMovies();
 
-// api.fetchSearch({ type: "tv", query: "game of thrones" }).then((data) => {
-// 	display.listSection(
-// 		"#results",
-// 		`${data.results.length} Result${data.results.length == 1 ? "" : "s"}`,
-// 		data
-// 	);
-// });
-
-// document.querySelector("form").addEventListener("submit", handleSubmit);
+document.querySelector("form").addEventListener("submit", handleSubmit);

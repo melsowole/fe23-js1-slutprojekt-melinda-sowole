@@ -83,14 +83,15 @@
 				>
 					<!-- HOME TAB START -->
 					<div class="py-2">
-						<div id="popular"></div>
-						<div id="top-rated"></div>
+						<div id="popular" class="py-3"></div>
+						<hr />
+						<div id="top-rated" class="py-3"></div>
 					</div>
 
 					<!-- HOME TAB END -->
 				</div>
 				<div
-					class="tab-pane fade show active container py-3"
+					class="tab-pane fade container py-3 show active"
 					id="search-tab-pane"
 					role="tabpanel"
 					aria-labelledby="search-tab"
@@ -103,9 +104,9 @@
 						>
 						<div class="input-group mb-3 col">
 							<select class="input-group-text" aria-label="Search type">
-								<option value="movies" selected>Movies</option>
+								<option value="movie" selected>Movies</option>
 								<option value="tv">TV</option>
-								<option value="actors">Actors</option>
+								<option value="person">Actors</option>
 							</select>
 							<input type="text" id="search-input" class="form-control" />
 						</div>

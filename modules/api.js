@@ -1,64 +1,73 @@
-import { handleError } from "./errorHandler.js";
-
 //Handles communication with The Movies DataBase API
 const BASE_URL = "https://api.themoviedb.org/3";
 const API_KEY = `&api_key=7f1175b36bcc5bf2000e124d101b28e2`;
 
 export const api = {
 	fetchSearch,
-	fetchTopMovies,
+	fetchTopRatedMovies,
 	fetchPopularMovies,
-	getRequestType,
 };
 
-function fetchSearch({ type, query }) {
+async function fetchSearch({ type, query }) {
 	const ENDPOINT = `/search/${type}`; // movie || person || tv
 	const QUERY = `?query=${formatQueryString(query)}`;
 	const FILTERS = "&include_adult=false&language=en-US";
 
 	const url = BASE_URL + ENDPOINT + QUERY + FILTERS + API_KEY;
 
-	return fetchAPI(url);
+	console.log(url);
+
+	try {
+		const data = await fetchAPI(url);
+		return data.results;
+	} catch (error) {
+		throw error;
+	}
 }
 
-function fetchTopMovies() {
-	const url = getMovieList("top_rated");
+async function fetchTopRatedMovies() {
+	const url = getMovieListURL("top_rated");
 
-	return fetchAPI(url);
+	try {
+		const data = await fetchAPI(url);
+		return data.results;
+	} catch (error) {
+		throw error;
+	}
 }
 
-function fetchPopularMovies() {
-	const url = getMovieList("popular");
+async function fetchPopularMovies() {
+	const url = getMovieListURL("popular");
 
-	return fetchAPI(url);
+	try {
+		const data = await fetchAPI(url);
+		return data.results;
+	} catch (error) {
+		throw error;
+	}
 }
 
-function getMovieList(type) {
+function getMovieListURL(type) {
 	const ENDPOINT = `/movie/${type}?language=en-US&limit=10`;
 	return BASE_URL + ENDPOINT + API_KEY;
 }
 
 async function fetchAPI(url) {
-	try {
-		const response = await fetch(url);
+	const response = await fetch(url);
+
+	if (response.ok) {
 		const data = await response.json();
 
 		if (data.results && data.results.length) {
-			return { results: data.results, url };
+			return data;
 		} else {
 			throw 404;
 		}
-	} catch (error) {
-		handleError(error);
+	} else {
+		throw response.status;
 	}
 }
 
 function formatQueryString(string) {
 	return string.replaceAll(" ", "%20");
-}
-
-function getRequestType(url) {
-	const requestType = url.split("/").pop().split("?")[0];
-
-	return requestType ? requestType : false;
 }

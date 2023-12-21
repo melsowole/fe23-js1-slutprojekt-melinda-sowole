@@ -1,4 +1,4 @@
-export const DOM = {
+export const dom = {
 	create,
 	createAndAppend,
 };
