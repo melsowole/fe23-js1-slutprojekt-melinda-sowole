@@ -16,48 +16,59 @@
 			integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
 			crossorigin="anonymous"
 		></script>
+		<style>
+			.modal {
+				/* position: absolute; */
+				display: block;
+			}
+
+			.movie {
+				height: 100px;
+				width: 100px;
+				background-color: pink;
+			}
+		</style>
 	</head>
 	<body class="container">
-		<div class="card-deck row g-5">
-			<div class="col">
-				<div class="card">
-					<img
-						class="card-img-top"
-						src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fp8.storage.canalblog.com%2F80%2F46%2F1144251%2F89244560_q.jpg&f=1&nofb=1&ipt=949f74a7b1d43b038a91c35793a70f2d9d7766f4f4ba2fb738c6701b6b962bbd&ipo=images"
-						alt="Card image cap"
-					/>
-					<div class="card-body">
-						<h5 class="card-title">Card title</h5>
-						<p class="card-text">
-							This is a longer card with supporting text below as a natural
-							lead-in to additional content. This content is a little bit
-							longer.
-						</p>
-						<p class="card-text">
-							<small class="text-muted">Last updated 3 mins ago</small>
-						</p>
+		<div class="movie"></div>
+
+		<script>
+			document.querySelector(".movie").addEventListener("click", () => {
+				const modal = document.createElement("div");
+				modal.setAttribute("tabindex", "-1");
+				modal.setAttribute("role", "dialog");
+				modal.classList.add("modal");
+
+				const dialogue = document.createElement("div");
+				div.classList.add("modal-dialog");
+				modal.setAttribute("role", "document");
+
+				const content = document.createElement("div");
+				content.classList.add("modal-content");
+
+				modal.innerHTML = `
+				<div class="modal" tabindex="-1" role="dialog">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title">Batman</h5>
+
+								<button
+									type="button"
+									class="btn-close me-0"
+									data-dismiss="modal"
+									aria-label="Close"
+								></button>
+							</div>
+							<div class="modal-body">
+								<p>Modal body text goes here.</p>
+							</div>
+						</div>
 					</div>
-				</div>
-			</div>
-			<div class="col">
-				<div class="card">
-					<img
-						class="card-img-top"
-						src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fp8.storage.canalblog.com%2F80%2F46%2F1144251%2F89244560_q.jpg&f=1&nofb=1&ipt=949f74a7b1d43b038a91c35793a70f2d9d7766f4f4ba2fb738c6701b6b962bbd&ipo=images"
-						alt="Card image cap"
-					/>
-					<div class="card-body">
-						<h5 class="card-title">Card title</h5>
-						<p class="card-text">
-							This card has supporting text below as a natural lead-in to
-							additional content.
-						</p>
-						<p class="card-text">
-							<small class="text-muted">Last updated 3 mins ago</small>
-						</p>
-					</div>
-				</div>
-			</div>
-		</div>
+				</div>`;
+
+				document.body.prepend(modal);
+			});
+		</script>
 	</body>
 </html>

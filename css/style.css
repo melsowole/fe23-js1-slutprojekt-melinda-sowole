@@ -82,7 +82,19 @@ ol {
 
 .card .cover {
 	min-height: 400px;
-	background-color: var(--col-50);
 	background-position: center;
 	background-size: cover;
+}
+
+.modal {
+	display: block;
+	background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal img {
+	width: 50%;
+}
+
+.work {
+	cursor: pointer;
 }

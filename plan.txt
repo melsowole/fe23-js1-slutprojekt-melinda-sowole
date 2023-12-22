@@ -52,3 +52,6 @@ Pass with distinction, requirements:
     - similar titles: keywords
     - backgrounds
     - display genre
+
+Extras:
+- multi search?

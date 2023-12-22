@@ -1,7 +1,7 @@
 // import { topMovies } from "./modules/old/fetchMovies.js";
 // import { handleSubmit } from "./modules/form.js";
 import { api } from "./modules/api.js";
-import { display } from "./modules/domBuilder.js";
+import { display } from "./modules/domCardBuilder.js";
 import { handleSubmit } from "./modules/formHandler.js";
 import {
 	displayPopularMovies,

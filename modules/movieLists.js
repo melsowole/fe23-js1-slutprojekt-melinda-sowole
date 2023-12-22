@@ -1,5 +1,5 @@
 import { api } from "./api.js";
-import { display } from "./domBuilder.js";
+import { display } from "./domCardBuilder.js";
 
 export function displayPopularMovies() {
 	api.fetchPopularMovies().then((shows) => {

@@ -1,4 +1,4 @@
-import { display } from "./domBuilder.js";
+import { display } from "./domCardBuilder.js";
 
 export function handleError(errorCode) {
 	let errorType = "Server Issue";

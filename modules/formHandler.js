@@ -1,5 +1,5 @@
 import { api } from "./api.js";
-import { display } from "./domBuilder.js";
+import { display } from "./domCardBuilder.js";
 import { handleError } from "./errorHandler.js";
 
 export function handleSubmit(e) {
@@ -13,7 +13,7 @@ export function handleSubmit(e) {
 
 	if (query.length) {
 		api
-			.fetchSearch({ type, query })
+			.fetchQuery({ type, query })
 			.then((data) => {
 				display.resultList("#results", data);
 			})
