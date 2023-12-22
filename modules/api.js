@@ -17,6 +17,8 @@ async function fetchQuery({ type, query }) {
 
 	const url = BASE_URL + ENDPOINT + QUERY + FILTERS + API_KEY;
 
+	console.log(url);
+
 	return fetchData(url);
 }
 
@@ -42,14 +44,11 @@ async function fetchDetails({ type, id }) {
 }
 
 // API
-
 async function fetchData(url) {
 	const response = await fetch(url);
 
 	if (response.ok) {
 		const data = await response.json();
-
-		console.log(data);
 
 		if (data.results && data.results.length) {
 			return data.results;

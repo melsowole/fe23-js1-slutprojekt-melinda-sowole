@@ -2,6 +2,7 @@
 // * "film" is used for both movies and tv
 import { dom } from "./domUtils.js";
 import { api } from "./api.js";
+import anime from "../lib/anime.es.js";
 
 export const display = { resultList, topTenList, errorMessage };
 
@@ -16,7 +17,7 @@ function resultList(parentID, results) {
 	parent.append(listSection);
 
 	let cardType = createFilmCardExtendedInfo;
-	if (resultsArePeople(results)) {
+	if (getFetchType(results) == "person") {
 		cardType = createPersonCard;
 	}
 
@@ -63,9 +64,14 @@ function errorMessage(errorType, errorMessage) {
 }
 
 // COMPONENTS
-function fillList(list, items, cardType) {
+async function fillList(list, items, cardType) {
+	const itemsType = getFetchType(items);
+
 	for (let item of items) {
-		item = unifyData(item);
+		if (itemsType !== "person") {
+			item = await api.fetchDetails({ type: itemsType, id: item.id });
+		}
+		item = unifyData(item, itemsType);
 		// keys (film): name, release, cover, description
 		// keys person: name, role, img, known_for
 
@@ -99,7 +105,7 @@ function createList() {
 
 function createCard(film) {
 	//h-100 makes all card equal heihght
-	const card = dom.create("article", ["row", "card", "h-100"]);
+	let card = dom.create("article", ["row", "card", "h-100"]);
 
 	//img, title (year), genre
 	const cardImg = dom.createAndAppend(card, "div", [
@@ -131,13 +137,59 @@ function createCard(film) {
 		"ms-2",
 	]);
 
-	return { card, cardImg, cardBody, cardTitle, cardSubtitle };
+	// animation on hover of clickables
+	let wrapper;
+	if (film.homepage) {
+		wrapper = dom.create("a", ["redirect"]);
+		wrapper.href = film.homepage;
+		wrapper.target = "_blank";
+
+		card.addEventListener("mouseover", () => {
+			anime({
+				targets: card,
+				scale: 1.03,
+			});
+		});
+
+		card.addEventListener("mouseout", () => {
+			anime({
+				targets: card,
+				scale: 1,
+			});
+		});
+
+		wrapper.append(card);
+	}
+
+	return {
+		card,
+		wrapper,
+		cardImg,
+		cardBody,
+		cardTitle,
+		cardSubtitle,
+	};
 }
 
 function createFilmCard(film, extend) {
-	const { card, cardImg, cardTitle, cardBody, cardSubtitle } = createCard(film);
+	const { wrapper, card, cardImg, cardTitle, cardBody, cardSubtitle } =
+		createCard(film);
 
 	setCardImg(cardImg, film.cover);
+
+	cardImg.classList.add(
+		"d-flex",
+		"flex-wrap-reverse",
+		"align-items-start",
+		"MY-align-content-start",
+		"justify-content-end",
+		"gap-2",
+		"p-3"
+	);
+
+	for (const genre of film.genres) {
+		dom.createAndAppend(cardImg, "span", ["badge", "bg-col-dark"], genre);
+	}
 
 	setCardTitle(cardTitle, film.name);
 	setCardSubtitle(cardSubtitle, "(" + film.release + ")");
@@ -149,15 +201,20 @@ function createFilmCard(film, extend) {
 		addToCardBody(cardBody, overview);
 	}
 
-	return !extend ? card : { card, cardImg, cardBody };
+	return !extend
+		? wrapper
+			? wrapper
+			: card
+		: { wrapper, card, cardImg, cardBody };
 }
 
 function createFilmCardExtendedInfo(film) {
-	const { card, cardImg, cardBody } = createFilmCard(film, "extend");
+	const { wrapper, card } = createFilmCard(film, "extend");
 
-	card.querySelectorAll("p");
+	console.log("THISSSS:", wrapper, card);
+	console.log("SO THISS:", wrapper ? { wrapper, card } : card);
 
-	return card;
+	return wrapper ? { wrapper, card } : card;
 }
 
 function createPersonCard(person) {
@@ -179,20 +236,16 @@ function createPersonCard(person) {
 		const p = dom.createAndAppend(knownWorks, "p", "work", text);
 
 		p.addEventListener("click", () => {
-			createModal(work);
+			createModal({ id: work.id, type: work.type });
 		});
 	}
 
 	return card;
 }
 
-async function createModal(filmShortInfo) {
-	const data = await api.fetchDetails({
-		type: filmShortInfo.type,
-		id: filmShortInfo.id,
-	});
-
-	const filmDetails = unifyData(data);
+async function createModal({ id, type }) {
+	let filmInfo = await api.fetchDetails({ id, type });
+	filmInfo = unifyData(filmInfo);
 
 	const modal = dom.create("div", "modal");
 	modal.addEventListener("click", removeModal);
@@ -205,8 +258,18 @@ async function createModal(filmShortInfo) {
 
 	const content = dom.createAndAppend(dialog, "div", "modal-content");
 
-	const modalHeader = dom.createAndAppend(content, "header", "modal-header");
-	const title = dom.createAndAppend(modalHeader, "h3", "modal-title");
+	const modalHeader = dom.createAndAppend(content, "header", [
+		"modal-header",
+		"py-0",
+	]);
+
+	const title = dom.createAndAppend(
+		modalHeader,
+		"h3",
+		"modal-title",
+		filmInfo.name + "(" + filmInfo.release + ")"
+	);
+
 	const btnClose = dom.createAndAppend(modalHeader, "button", [
 		"btn-close",
 		"me-0",
@@ -216,14 +279,26 @@ async function createModal(filmShortInfo) {
 	btnClose.setAttribute("data-dismiss", "modal");
 	btnClose.addEventListener("click", removeModal);
 
-	const card = createFilmCardExtendedInfo(filmDetails);
+	const { card, wrapper } = createFilmCardExtendedInfo(filmInfo);
+
+	content.append(wrapper ? wrapper : card);
+
+	// remove list specific styling
+	card.classList.remove("row");
 	const cardImg = card.querySelector(".cover");
 	const cardBody = card.querySelector(".card-body");
 	unflexCardOnWideScreen(cardImg, cardBody);
 
-	card.classList.remove("row");
-
-	content.append(card);
+	if (filmInfo.tagline) {
+		const cardTitle = card.querySelector(".card-title");
+		cardTitle.remove();
+		const cardSubtitle = card.querySelector(".card-subtitle");
+		cardSubtitle.classList = "card-subtitle"; // removes previous card styling
+		setCardSubtitle(cardSubtitle, filmInfo.tagline);
+	} else {
+		const cardHeader = card.querySelector("header");
+		cardHeader.remove();
+	}
 
 	function removeModal(e) {
 		e.stopPropagation();
@@ -287,18 +362,23 @@ function getReleaseYear(year) {
 
 // returns object with more streamlined keys
 // across actor, movie and tv results
-function unifyData(data) {
+function unifyData(data, itemsType) {
 	let unifiedData = {
-		type: "movie",
+		type: itemsType,
 		id: data.id,
 		name: data.title,
 		release: data.release_date,
 		cover: data.poster_path || data.backdrop_path,
 		description: data.overview,
+		tagline: data.tagline,
+		homepage: data.homepage,
 	};
 
-	if ("first_air_date" in data) {
-		unifiedData.type = "tv";
+	if (itemsType !== "person") {
+		unifiedData.genres = data.genres.map((genre) => genre.name);
+	}
+
+	if (itemsType == "tv") {
 		unifiedData.name = data.name;
 		unifiedData.release = data.first_air_date;
 	}
@@ -310,9 +390,9 @@ function unifyData(data) {
 	// if no release
 	unifiedData.release = unifiedData.release == "" ? "—" : unifiedData.release;
 
-	if (data.known_for) {
+	if (itemsType == "person") {
+		console.log(data);
 		unifiedData = {
-			type: "person",
 			name: data.name,
 			role: data.known_for_department,
 			known_for: data.known_for.map((work) => {
@@ -329,8 +409,14 @@ function unifyData(data) {
 	return unifiedData;
 }
 
-function resultsArePeople(results) {
-	return "gender" in results[0];
+function getFetchType(results) {
+	if ("title" in results[0]) {
+		return "movie";
+	} else if ("first_air_date" in results[0]) {
+		return "tv";
+	} else {
+		return "person";
+	}
 }
 
 function setText(container, text) {

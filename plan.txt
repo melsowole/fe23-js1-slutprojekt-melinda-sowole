@@ -8,7 +8,6 @@ Search movie or person for more information.
 -- A simplified IMdB
 
 SCREEN TIME
-- film strip, sleep, blue, mint green, coral
 
 Site elements:
 - List with current top 10 ranked movies

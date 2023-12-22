@@ -34,6 +34,28 @@
 	--col-900: #880e4f;
 }
 
+.bg-col {
+	background-color: var(--col);
+	color: var(--surface);
+}
+
+.bg-col-hover:hover {
+	background-color: var(--col-700);
+	color: var(--surface);
+}
+
+.bg-col-dark {
+	background-color: var(--col-900);
+	color: var(--surface);
+}
+
+.text-col {
+	color: var(--col);
+}
+.text-col-hover:hover {
+	color: var(--col-900);
+}
+
 * {
 	font-family: "JetBrains Mono", monospace;
 	color: var(--contrast);
@@ -80,10 +102,18 @@ ol {
 	padding-left: 1rem;
 }
 
+a {
+	text-decoration: none;
+}
+
 .card .cover {
 	min-height: 400px;
 	background-position: center;
 	background-size: cover;
+}
+
+.MY-align-content-start {
+	align-content: flex-start;
 }
 
 .modal {
