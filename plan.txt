@@ -1,5 +1,10 @@
 18/12-2023 -- 5/1-2023
 
+TODO:
+- tv.name undefined in modal
+- appending object on tv and movies in results
+- movies and tv don't display flex
+
 https://developer.themoviedb.org/docs
 
 Website using The Movie DataBase.
