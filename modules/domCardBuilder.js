@@ -10,7 +10,6 @@ export const display = { resultList, topTenList, errorMessage };
 function resultList(parentID, results) {
 	const parent = clearAndSetParent(parentID);
 
-	// create list
 	const listName = `${results.length} Result${results.length == 1 ? "" : "s"}`;
 
 	const { listSection, list } = createListSection(listName);
@@ -23,14 +22,12 @@ function resultList(parentID, results) {
 
 	fillList(list, results, cardType);
 
-	const cards = listSection.querySelectorAll(".card");
-
 	//sets columns
 	list.classList.add("row-cols-1");
-
-	cards.forEach((card) => {
-		card.classList.add("flex-row");
-	});
+	const cards = listSection.querySelectorAll(".card");
+	// cards.forEach((card) => {
+	// 	card.classList.add("flex-row");
+	// });
 }
 
 function topTenList(parentID, listName, results) {
@@ -77,7 +74,11 @@ async function fillList(list, items, cardType) {
 
 		const listItem = dom.createAndAppend(list, "li", "col");
 
-		listItem.append(cardType(item));
+		const card = cardType(item);
+
+		console.log(card);
+
+		listItem.append(card);
 		list.append(listItem);
 	}
 }
@@ -105,7 +106,7 @@ function createList() {
 
 function createCard(film) {
 	//h-100 makes all card equal heihght
-	let card = dom.create("article", ["row", "card", "h-100"]);
+	let card = dom.create("article", ["row", "card", "h-100", "flex-row"]);
 
 	//img, title (year), genre
 	const cardImg = dom.createAndAppend(card, "div", [
@@ -149,12 +150,22 @@ function createCard(film) {
 				targets: card,
 				scale: 1.03,
 			});
+
+			anime({
+				targets: card.querySelector(".watch-film"),
+				backgroundColor: "#fff",
+			});
 		});
 
 		card.addEventListener("mouseout", () => {
 			anime({
 				targets: card,
 				scale: 1,
+			});
+
+			anime({
+				targets: card.querySelector(".watch-film"),
+				backgroundColor: "#ffc107", // bootstrap bg-warning
 			});
 		});
 
@@ -179,16 +190,32 @@ function createFilmCard(film, extend) {
 
 	cardImg.classList.add(
 		"d-flex",
+		"flex-column-reverse",
+		"justify-content-between",
+		"p-3"
+	);
+
+	const genres = dom.createAndAppend(cardImg, "div", [
+		"d-flex",
+		"justify-self-end",
 		"flex-wrap-reverse",
 		"align-items-start",
 		"MY-align-content-start",
 		"justify-content-end",
 		"gap-2",
-		"p-3"
-	);
+	]);
 
 	for (const genre of film.genres) {
-		dom.createAndAppend(cardImg, "span", ["badge", "bg-col-dark"], genre);
+		dom.createAndAppend(genres, "span", ["badge", "bg-secondary"], genre);
+	}
+
+	if (film.homepage) {
+		dom.createAndAppend(
+			cardImg,
+			"span",
+			["watch-film", "bg-warning", "badge", "align-self-end", "fs-6"],
+			"Watch Film"
+		);
 	}
 
 	setCardTitle(cardTitle, film.name);
@@ -211,10 +238,7 @@ function createFilmCard(film, extend) {
 function createFilmCardExtendedInfo(film) {
 	const { wrapper, card } = createFilmCard(film, "extend");
 
-	console.log("THISSSS:", wrapper, card);
-	console.log("SO THISS:", wrapper ? { wrapper, card } : card);
-
-	return wrapper ? { wrapper, card } : card;
+	return wrapper ? wrapper : card;
 }
 
 function createPersonCard(person) {

@@ -17,8 +17,6 @@ async function fetchQuery({ type, query }) {
 
 	const url = BASE_URL + ENDPOINT + QUERY + FILTERS + API_KEY;
 
-	console.log(url);
-
 	return fetchData(url);
 }
 
@@ -45,20 +43,25 @@ async function fetchDetails({ type, id }) {
 
 // API
 async function fetchData(url) {
-	const response = await fetch(url);
+	try {
+		const response = await fetch(url);
 
-	if (response.ok) {
-		const data = await response.json();
+		if (response.ok) {
+			const data = await response.json();
 
-		if (data.results && data.results.length) {
-			return data.results;
-		} else if (data) {
-			return data;
+			if (data.results && data.results.length) {
+				return data.results;
+			} else if (data) {
+				return data;
+			} else {
+				throw 404;
+			}
 		} else {
-			throw 404;
+			console.log(response);
+			throw response.status;
 		}
-	} else {
-		throw response.status;
+	} catch (error) {
+		throw error;
 	}
 }
 
