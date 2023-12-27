@@ -17,6 +17,7 @@
 			integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
 			crossorigin="anonymous"
 		></script>
+
 		<link rel="stylesheet" href="./css/style.css" />
 		<title>Screen Time</title>
 	</head>
@@ -32,7 +33,7 @@
 			<ul class="nav nav-tabs justify-content-end" id="myTab" role="tablist">
 				<li class="nav-item" role="presentation">
 					<button
-						class="nav-link active"
+						class="nav-link"
 						id="home-tab"
 						data-bs-toggle="tab"
 						data-bs-target="#home-tab-pane"
@@ -46,7 +47,7 @@
 				</li>
 				<li class="nav-item" role="presentation">
 					<button
-						class="nav-link"
+						class="nav-link active"
 						id="search-tab"
 						data-bs-toggle="tab"
 						data-bs-target="#search-tab-pane"
@@ -75,7 +76,7 @@
 			</ul>
 			<div class="tab-content" id="myTabContent">
 				<div
-					class="tab-pane fade show active"
+					class="tab-pane fade"
 					id="home-tab-pane"
 					role="tabpanel"
 					aria-labelledby="home-tab"
@@ -91,7 +92,7 @@
 					<!-- HOME TAB END -->
 				</div>
 				<div
-					class="tab-pane fade container py-3"
+					class="tab-pane fade container py-3 show active"
 					id="search-tab-pane"
 					role="tabpanel"
 					aria-labelledby="search-tab"

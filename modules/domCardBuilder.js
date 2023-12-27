@@ -65,7 +65,9 @@ async function fillList(list, items, cardType) {
 	const itemsType = getFetchType(items);
 
 	for (let item of items) {
-		if (itemsType !== "person") {
+		const itemIsFilm = itemsType !== "person";
+
+		if (itemIsFilm) {
 			item = await api.fetchDetails({ type: itemsType, id: item.id });
 		}
 		item = unifyData(item, itemsType);
@@ -75,8 +77,6 @@ async function fillList(list, items, cardType) {
 		const listItem = dom.createAndAppend(list, "li", "col");
 
 		const card = cardType(item);
-
-		console.log(card);
 
 		listItem.append(card);
 		list.append(listItem);
@@ -145,29 +145,32 @@ function createCard(film) {
 		wrapper.href = film.homepage;
 		wrapper.target = "_blank";
 
-		card.addEventListener("mouseover", () => {
-			anime({
-				targets: card,
-				scale: 1.03,
+		// .closest() is parent
+		if (card.closest(".modal-content") !== null) {
+			card.addEventListener("mouseover", () => {
+				anime({
+					targets: card,
+					scale: 1.03,
+				});
+
+				anime({
+					targets: card.querySelector(".watch-film"),
+					backgroundColor: "#fff",
+				});
 			});
 
-			anime({
-				targets: card.querySelector(".watch-film"),
-				backgroundColor: "#fff",
-			});
-		});
+			card.addEventListener("mouseout", () => {
+				anime({
+					targets: card,
+					scale: 1,
+				});
 
-		card.addEventListener("mouseout", () => {
-			anime({
-				targets: card,
-				scale: 1,
+				anime({
+					targets: card.querySelector(".watch-film"),
+					backgroundColor: "#ffc107", // bootstrap bg-warning
+				});
 			});
-
-			anime({
-				targets: card.querySelector(".watch-film"),
-				backgroundColor: "#ffc107", // bootstrap bg-warning
-			});
-		});
+		}
 
 		wrapper.append(card);
 	}
@@ -260,16 +263,16 @@ function createPersonCard(person) {
 		const p = dom.createAndAppend(knownWorks, "p", "work", text);
 
 		p.addEventListener("click", () => {
-			createModal({ id: work.id, type: work.type });
+			createFilmModal({ id: work.id, type: work.type });
 		});
 	}
 
 	return card;
 }
 
-async function createModal({ id, type }) {
+async function createFilmModal({ id, type }) {
 	let filmInfo = await api.fetchDetails({ id, type });
-	filmInfo = unifyData(filmInfo);
+	filmInfo = unifyData(filmInfo, type);
 
 	const modal = dom.create("div", "modal");
 	modal.addEventListener("click", removeModal);
@@ -303,12 +306,14 @@ async function createModal({ id, type }) {
 	btnClose.setAttribute("data-dismiss", "modal");
 	btnClose.addEventListener("click", removeModal);
 
-	const { card, wrapper } = createFilmCardExtendedInfo(filmInfo);
+	let card = createFilmCardExtendedInfo(filmInfo);
 
-	content.append(wrapper ? wrapper : card);
+	content.append(card);
+
+	card = card.tagName == "A" ? card.querySelector("article") : card;
 
 	// remove list specific styling
-	card.classList.remove("row");
+	card.classList.remove("row", "flex-row");
 	const cardImg = card.querySelector(".cover");
 	const cardBody = card.querySelector(".card-body");
 	unflexCardOnWideScreen(cardImg, cardBody);
@@ -387,6 +392,8 @@ function getReleaseYear(year) {
 // returns object with more streamlined keys
 // across actor, movie and tv results
 function unifyData(data, itemsType) {
+	console.log(data);
+
 	let unifiedData = {
 		type: itemsType,
 		id: data.id,
@@ -415,7 +422,6 @@ function unifyData(data, itemsType) {
 	unifiedData.release = unifiedData.release == "" ? "—" : unifiedData.release;
 
 	if (itemsType == "person") {
-		console.log(data);
 		unifiedData = {
 			name: data.name,
 			role: data.known_for_department,
