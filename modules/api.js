@@ -50,11 +50,15 @@ async function fetchData(url) {
 			const data = await response.json();
 
 			if (data.results && data.results.length) {
+				// SEARCH RESULTS
 				return data.results;
-			} else if (data) {
-				return data;
-			} else {
+			} else if (data.results && !data.results.length) {
+				// NO RESULTS
+
 				throw 404;
+			} else {
+				// SEARCH FOR ID
+				return data;
 			}
 		} else {
 			console.log(response);

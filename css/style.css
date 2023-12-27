@@ -73,13 +73,6 @@ a {
 	text-decoration: none;
 }
 
-.card-subtitle::before {
-	content: "(";
-}
-.card-subtitle::after {
-	content: ")";
-}
-
 .card .cover {
 	min-height: 400px;
 	background-position: center;
