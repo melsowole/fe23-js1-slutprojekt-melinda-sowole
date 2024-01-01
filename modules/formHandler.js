@@ -15,7 +15,6 @@ export function handleSubmit(e) {
 		api
 			.fetchQuery({ type, query })
 			.then((data) => {
-				console.log(data.results);
 				display.resultList("#results", data);
 			})
 			.catch(handleError);
