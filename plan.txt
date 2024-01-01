@@ -7,10 +7,6 @@ See current top rated and top movies
 Search movie or person for more information.
 -- A simplified IMdB
 
-TODO:
-FIX ERROR MESSAGE
-
-SCREEN TIME
 
 Site elements:
 - List with current top 10 ranked movies
@@ -44,16 +40,14 @@ Errors:
 
 Additional basic requirements:
 - Use at least one library
-    - cookie.js, anime.js
+    - anime.js, cookie.js(?)
 
 Pass with distinction, requirements:
 - Add additional functionality with TMDB API
-    - user score
-    - budget vs earnings
-    - where to stream
-    - similar titles: keywords
-    - backgrounds
-    - display genre
-
-Extras:
-- multi search?
+    - Potential Extras (?)
+    -- multi search?
+    -- user score?
+    -- where to stream?
+    -- display genre
+    -- backgrounds
+    -- similar titles
