@@ -15,7 +15,7 @@ function resultList(parentID, results) {
 	const { listSection, list } = createListSection(listName);
 	parent.append(listSection);
 
-	fillList(list, results, createACard, true);
+	fillList(list, results, true);
 
 	//sets columns
 	list.classList.add("row-cols-1");
@@ -32,7 +32,7 @@ function topTenList(parentID, listName, results) {
 
 	const topTen = results.slice(0, 10);
 
-	fillList(list, topTen, createACard, false);
+	fillList(list, topTen, false);
 
 	// sets columns
 	list.classList.add(
@@ -52,155 +52,8 @@ function errorMessage(errorType, errorMessage) {
 	dom.createAndAppend(errorContainer, "p", "error-heading", errorMessage);
 }
 
-function createACard(item, extend) {
-	//item == film or person object
-
-	// create the card
-	let wrapperType = item.info.homepage ? "a" : "div";
-	let cardWrapper = dom.create(wrapperType, ["card-wrapper"]);
-
-	//h-100 makes all card equal height
-	let card = dom.createAndAppend(cardWrapper, "article", [
-		"row",
-		"card",
-		"h-100",
-		"flex-row",
-	]);
-
-	//img, title (year), genre
-	const cardImg = dom.createAndAppend(card, "div", [
-		"cover",
-		"card-img-start",
-		"col-fluid",
-		"rounded-top",
-	]);
-
-	setCardImg(cardImg, item.info.img);
-
-	if (item.info.genres) {
-		cardImg.classList.add(
-			"d-flex",
-			"flex-column-reverse",
-			"justify-content-between",
-			"p-3"
-		);
-
-		const genres = dom.createAndAppend(cardImg, "div", [
-			"d-flex",
-			"justify-self-end",
-			"flex-wrap-reverse",
-			"align-items-start",
-			"align-content-start_",
-			"justify-content-end",
-			"gap-2",
-		]);
-
-		for (const genre of item.info.genres) {
-			dom.createAndAppend(genres, "span", ["badge", "bg-secondary"], genre);
-		}
-	}
-
-	if (item.info.homepage) {
-		dom.createAndAppend(
-			cardImg,
-			"span",
-			["watch-film", "bg-warning", "badge", "align-self-end", "fs-6"],
-			"Watch Film"
-		);
-
-		cardWrapper.classList.add("redirect");
-		cardWrapper.href = item.info.homepage;
-		cardWrapper.target = "_blank";
-
-		card.addEventListener("mouseover", () => {
-			// .closest() checks parent container
-			if (cardWrapper.closest(".modal-content") == null) {
-				anime({
-					targets: card,
-					scale: 1.03,
-				});
-
-				anime({
-					targets: card.querySelector(".watch-film"),
-					backgroundColor: "#fff",
-				});
-			}
-		});
-
-		card.addEventListener("mouseout", () => {
-			if (cardWrapper.closest(".modal-content") == null) {
-				anime({
-					targets: card,
-					scale: 1,
-				});
-
-				anime({
-					targets: card.querySelector(".watch-film"),
-					backgroundColor: "#ffc107", // bootstrap bg-warning
-				});
-			}
-		});
-	}
-
-	const cardBody = dom.createAndAppend(card, "div", [
-		"card-body",
-		"list-group",
-		"list-group-flush",
-		"col-auto",
-	]);
-
-	const cardTitleWrapper = dom.createAndAppend(cardBody, "header", [
-		"card-title-wrapper",
-		"list-group-item",
-	]);
-
-	const cardTitle = dom.createAndAppend(
-		cardTitleWrapper,
-		"h3",
-		["card-title", "fs-5", "d-inline"],
-		item.info.name
-	);
-
-	const cardSubtitle = dom.createAndAppend(
-		cardTitleWrapper,
-		"span",
-		["card-subtitle", "ms-2"],
-		item.type == "person" ? item.info.role : item.info.release
-	);
-
-	if (extend) {
-		flexCardOnWideScreen(cardImg, cardBody);
-
-		if (item.info.description) {
-			const infoBlock = dom.create(
-				"p",
-				"extended-info-block",
-				item.info.description
-			);
-			addToCardBody(cardBody, infoBlock);
-		}
-
-		if (item.info.known_for) {
-			const knownWorks = dom.create("div", "works");
-			addToCardBody(cardBody, knownWorks);
-
-			for (const work of item.info.known_for) {
-				// console.log(work);
-				const text = `(${work.type}) ${work.title}`;
-				const p = dom.createAndAppend(knownWorks, "p", "work", text);
-
-				p.addEventListener("click", () => {
-					createFilmModal({ id: work.id, type: work.type });
-				});
-			}
-		}
-	}
-
-	return cardWrapper;
-}
-
-// COMPONENTS
-async function fillList(list, items, cardType, extend) {
+// INITIALIZATION
+async function fillList(list, items, extend) {
 	const itemsType = getFetchType(items);
 
 	for (let item of items) {
@@ -222,6 +75,7 @@ async function fillList(list, items, cardType, extend) {
 	}
 }
 
+// COMPONENTS
 function createListSection(listName) {
 	const listSection = dom.create("section", "container");
 
@@ -243,34 +97,73 @@ function createList() {
 	return dom.create("ol", ["list", "row", "g-5", "row-cols"]);
 }
 
+function createACard(item, extend) {
+	//item == film or person object
+
+	const cardWrapper = createCardWrapper(item);
+
+	const { card, cardImg, cardBody } = createCard(item, extend);
+	cardWrapper.append(card);
+
+	return cardWrapper;
+}
+
 async function createFilmModal({ id, type }) {
 	let film = await api.fetchDetails({ id, type });
 	film = unifyData(film, type);
-	//name, releasem tagline
 
-	const modal = dom.create("div", "modal");
-	modal.addEventListener("click", removeModal);
-	modal.setAttribute("tabindex", "-1");
-	modal.setAttribute("role", "dialog");
-	document.body.prepend(modal);
+	const { modalWrapper, modalContent } = createModal(film);
+	document.body.prepend(modalWrapper);
 
-	const modalDialog = dom.createAndAppend(modal, "div", "modal-dialog");
+	let card = createACard(film, true);
+	modalContent.append(card);
+
+	// select card within wrapper
+	card = card.querySelector(".card");
+
+	setModalCardStyling(card);
+
+	if (film.info.tagline) {
+		setModalTagline(film, card);
+	} else {
+		const cardHeader = card.querySelector("header");
+		cardHeader.remove();
+	}
+}
+
+// -- modal components and functions
+function createModal(film) {
+	const modalWrapper = dom.create("div", "modal");
+	modalWrapper.addEventListener("click", removeModal);
+	modalWrapper.setAttribute("tabindex", "-1");
+	modalWrapper.setAttribute("role", "dialog");
+
+	const modalDialog = dom.createAndAppend(modalWrapper, "div", "modal-dialog");
 	modalDialog.setAttribute("role", "document");
 
 	const modalContent = dom.createAndAppend(modalDialog, "div", "modal-content");
 
+	const modalHeader = createModalHeader(modalContent);
+
+	setModalTitle(modalHeader, film.info.name, film.info.release);
+
+	return { modalWrapper, modalHeader, modalContent };
+}
+
+function createModalHeader(modalContent) {
 	const modalHeader = dom.createAndAppend(modalContent, "header", [
 		"modal-header",
 		"py-0",
 	]);
 
-	const title = dom.createAndAppend(
-		modalHeader,
-		"h3",
-		"modal-title",
-		film.info.name + "(" + film.info.release + ")"
-	);
+	const title = dom.createAndAppend(modalHeader, "h3", "modal-title");
 
+	createCloseModalButton(modalHeader);
+
+	return modalHeader;
+}
+
+function createCloseModalButton(modalHeader) {
 	const btnClose = dom.createAndAppend(modalHeader, "button", [
 		"btn-close",
 		"me-0",
@@ -279,14 +172,21 @@ async function createFilmModal({ id, type }) {
 	btnClose.setAttribute("aria-label", "Close");
 	btnClose.setAttribute("data-dismiss", "modal");
 	btnClose.addEventListener("click", removeModal);
+}
 
-	let card = createACard(film, true);
-	modalContent.append(card);
+function setModalTitle(modalHeader, title, subtitle) {
+	modalHeader.querySelector("*").textContent = `${title} (${subtitle})`;
+}
 
-	// select card within wrapper
-	card = card.querySelector(".card");
+function setModalTagline(film, card) {
+	const cardTitle = card.querySelector(".card-title");
+	cardTitle.remove();
+	const cardSubtitle = card.querySelector(".card-subtitle");
+	cardSubtitle.classList = "card-subtitle fst-italic"; // overrides previous styling
+	setCardSubtitle(cardSubtitle, film.info.tagline);
+}
 
-	// remove list specific styling
+function setModalCardStyling(card) {
 	card.classList.remove("row", "flex-row");
 	card.classList.add("rounded-0");
 
@@ -294,25 +194,158 @@ async function createFilmModal({ id, type }) {
 	cardImg.classList.remove("rounded-top");
 	const cardBody = card.querySelector(".card-body");
 	unflexCardOnWideScreen(cardImg, cardBody);
+}
 
-	if (film.info.tagline) {
-		const cardTitle = card.querySelector(".card-title");
-		cardTitle.remove();
-		const cardSubtitle = card.querySelector(".card-subtitle");
-		cardSubtitle.classList = "card-subtitle fst-italic"; // overrides previous styling
-		setCardSubtitle(cardSubtitle, film.info.tagline);
-	} else {
-		const cardHeader = card.querySelector("header");
-		cardHeader.remove();
+function removeModal(e) {
+	const modal = document.querySelector(".modal");
+	e.stopPropagation();
+	modal.remove();
+}
+
+// -- card components and functions
+function createCardWrapper(item) {
+	let wrapperType = item.info.homepage ? "a" : "div";
+
+	let cardWrapper = dom.create(wrapperType, ["card-wrapper"]);
+
+	if (item.info.homepage) {
+		cardWrapper.classList.add("redirect");
+		cardWrapper.href = item.info.homepage;
+		cardWrapper.target = "_blank";
 	}
 
-	function removeModal(e) {
-		e.stopPropagation();
-		modal.remove();
+	return cardWrapper;
+}
+
+function createCard(item, extend) {
+	//h-100 makes all card equal height
+	let card = dom.create("article", ["row", "card", "h-100", "flex-row"]);
+
+	const cardImg = createCardImg(item, card);
+
+	const cardBody = createCardBody(item, extend);
+
+	if (extend) {
+		flexCardOnWideScreen(cardImg, cardBody);
+	}
+
+	card.append(cardImg, cardBody);
+
+	return { card, cardImg, cardBody };
+}
+
+function createCardImg(item, card) {
+	const cardImg = dom.create("div", [
+		"cover",
+		"card-img-start",
+		"col-fluid",
+		"rounded-top",
+	]);
+
+	setCardImg(cardImg, item.info.img);
+
+	if (item.info.genres) {
+		createGenres(cardImg, item.info.genres);
+	}
+
+	if (item.info.homepage) {
+		addWatchFilmFunctionality(cardImg, card, item.info.homepage);
+	}
+
+	return cardImg;
+}
+
+function createGenres(parent, genres) {
+	parent.classList.add(
+		"d-flex",
+		"flex-column-reverse",
+		"justify-content-between",
+		"p-3"
+	);
+
+	const genresContainer = dom.createAndAppend(parent, "div", [
+		"d-flex",
+		"justify-self-end",
+		"flex-wrap-reverse",
+		"align-items-start",
+		"align-content-start_",
+		"justify-content-end",
+		"gap-2",
+	]);
+
+	for (const genre of genres) {
+		dom.createAndAppend(
+			genresContainer,
+			"span",
+			["badge", "bg-secondary"],
+			genre
+		);
 	}
 }
 
-// CUSTOMIZE CARD
+function createCardBody(item, extend) {
+	const cardBody = dom.create("div", [
+		"card-body",
+		"list-group",
+		"list-group-flush",
+		"col-auto",
+	]);
+
+	const cardTitleWrapper = dom.createAndAppend(cardBody, "header", [
+		"card-title-wrapper",
+		"list-group-item",
+	]);
+
+	const cardTitle = dom.createAndAppend(cardTitleWrapper, "h3", [
+		"card-title",
+		"fs-5",
+		"d-inline",
+	]);
+	setCardTitle(cardTitle, item.info.name);
+
+	const cardSubtitle = dom.createAndAppend(cardTitleWrapper, "span", [
+		"card-subtitle",
+		"ms-2",
+	]);
+	setCardSubtitle(
+		cardSubtitle,
+		item.type == "person" ? item.info.role : item.info.release
+	);
+
+	if (extend) {
+		createExtendedCardInfo(cardBody, item);
+	}
+
+	return cardBody;
+}
+
+function createExtendedCardInfo(cardBody, item) {
+	if (item.info.description) {
+		const infoBlock = dom.create(
+			"p",
+			"extended-info-block",
+			item.info.description
+		);
+		addToCardBody(cardBody, infoBlock);
+	}
+
+	if (item.info.known_for) {
+		const knownWorks = dom.create("div", "works");
+		addToCardBody(cardBody, knownWorks);
+
+		for (const work of item.info.known_for) {
+			// console.log(work);
+			const text = `(${work.type}) ${work.title}`;
+			const p = dom.createAndAppend(knownWorks, "p", "work", text);
+
+			p.addEventListener("click", () => {
+				createFilmModal({ id: work.id, type: work.type });
+			});
+		}
+	}
+}
+
+// --- card customization
 function setCardTitle(cardTitle, titleText) {
 	setText(cardTitle, titleText);
 }
@@ -348,6 +381,54 @@ function flexCardOnWideScreen(cardImg, cardBody) {
 function unflexCardOnWideScreen(cardImg, cardBody) {
 	cardImg.classList.remove("col-md-5", "col-lg-3", "rounded-start-md_");
 	cardBody.classList.remove("col-md-7");
+}
+
+// TODO: FIX FLICKER ON HOVER, ALWAYS CHANGE COLOR
+function addWatchFilmFunctionality(imageWrapper, card, link) {
+	const watchButton = dom.createAndAppend(
+		imageWrapper,
+		"span",
+		["watch-film", "badge", "align-self-end", "fs-6"],
+		"Watch Film"
+	);
+
+	card.addEventListener("mouseover", handleCardMouseOver);
+	card.addEventListener("mouseout", handleCardMouseOut);
+
+	// MOUSE HANDLER FUNCTIONS
+	function handleCardMouseOver() {
+		if (cardIsNotInModal()) {
+			anime({
+				targets: card,
+				scale: 1.03,
+			});
+
+			anime({
+				targets: card.querySelector(".watch-film"),
+				backgroundColor: "#fff",
+				color: "#111",
+			});
+		}
+	}
+
+	function handleCardMouseOut() {
+		if (cardIsNotInModal()) {
+			anime({
+				targets: card,
+				scale: 1,
+			});
+
+			anime({
+				targets: card.querySelector(".watch-film"),
+				backgroundColor: "#28a745",
+				color: "#ff",
+			});
+		}
+	}
+
+	function cardIsNotInModal() {
+		return card.closest(".modal-content") == null;
+	}
 }
 
 // HELPER FUNCTIONS

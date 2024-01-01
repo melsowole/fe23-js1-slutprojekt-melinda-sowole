@@ -25,7 +25,8 @@
 }
 
 .watch-film {
-	background-color: var(--warning);
+	background-color: var(--success);
+	color: var(--light);
 }
 
 * {
