@@ -383,7 +383,6 @@ function unflexCardOnWideScreen(cardImg, cardBody) {
 	cardBody.classList.remove("col-md-7");
 }
 
-// TODO: FIX FLICKER ON HOVER, ALWAYS CHANGE COLOR
 function addWatchFilmFunctionality(imageWrapper, card, link) {
 	const watchButton = dom.createAndAppend(
 		imageWrapper,
@@ -397,31 +396,35 @@ function addWatchFilmFunctionality(imageWrapper, card, link) {
 
 	// MOUSE HANDLER FUNCTIONS
 	function handleCardMouseOver() {
+		anime({
+			targets: card.querySelector(".watch-film"),
+			easing: "linear",
+			duration: 100,
+			backgroundColor: "#f8f9fa",
+			color: "#111",
+		});
+
 		if (cardIsNotInModal()) {
 			anime({
 				targets: card,
 				scale: 1.03,
 			});
-
-			anime({
-				targets: card.querySelector(".watch-film"),
-				backgroundColor: "#fff",
-				color: "#111",
-			});
 		}
 	}
 
 	function handleCardMouseOut() {
+		anime({
+			targets: card.querySelector(".watch-film"),
+			duration: 100,
+			easing: "linear",
+			backgroundColor: "#343a40",
+			color: "#f8f9fa",
+		});
+
 		if (cardIsNotInModal()) {
 			anime({
 				targets: card,
 				scale: 1,
-			});
-
-			anime({
-				targets: card.querySelector(".watch-film"),
-				backgroundColor: "#28a745",
-				color: "#ff",
 			});
 		}
 	}
